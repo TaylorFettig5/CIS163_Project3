@@ -235,23 +235,27 @@ class Game:
     Attempt to attack the target if it is in the room.
     '''
     def __attack(self, player: Character, target: str, *args) -> None:
-        if isinstance(player, Priest):
-            Printer.info("----- " + player.name + " refuses to break their vow! -----")
-
-        monster = self.__current_location.monster_in_dungeon(target)
-        if not monster:
-            Printer.info("There is no monster called " + target + " in this room!")
-            return
-        try:
-            damage = monster.take_damage(player)
-            Printer.alert("----- " + player.name + " attacks " + monster.name + " for " + str(damage) + " damage! -----")
-        except MonsterDeathException as ex:
-            Printer.alert("!!!!!! - YES! " + ex.monster.name + " HAS FALLEN! - !!!!!!")
-            Printer.info("From its remains you recover " + str(ex.monster.gold) + " gold!")
-            self.__gold = self.__gold + ex.monster.gold
-            for item in ex.monster.inventory:
-                self.__current_location.items.append(item)
-            self.__current_location.monsters.remove(ex.monster)
+        # Check if the character is overweight before allowing them to attack
+        if sum(item.weight for item in player.inventory) <= player.max_weight:
+            if isinstance(player, Priest):
+                Printer.info("----- " + player.name + " refuses to break their vow! -----")
+    
+            monster = self.__current_location.monster_in_dungeon(target)
+            if not monster:
+                Printer.info("There is no monster called " + target + " in this room!")
+                return
+            try:
+                damage = monster.take_damage(player)
+                Printer.alert("----- " + player.name + " attacks " + monster.name + " for " + str(damage) + " damage! -----")
+            except MonsterDeathException as ex:
+                Printer.alert("!!!!!! - YES! " + ex.monster.name + " HAS FALLEN! - !!!!!!")
+                Printer.info("From its remains you recover " + str(ex.monster.gold) + " gold!")
+                self.__gold = self.__gold + ex.monster.gold
+                for item in ex.monster.inventory:
+                    self.__current_location.items.append(item)
+                self.__current_location.monsters.remove(ex.monster)
+        else:
+            Printer.alert("Character is overweight and cannot attack.")
 
     '''
     Now the monsters get to attack.
