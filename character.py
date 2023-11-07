@@ -13,7 +13,7 @@ character.py
 # Generates random numbers
 import random
 
-# Creating the Item class
+# Creating the Character class
 class Character:
     def __init__(self, name):
         # Testing to see if name is blank
@@ -151,9 +151,113 @@ class Character:
             f"\n{armor_str}"
             f"\n{inventory_str}"
         )
-        
-        
-
         return character_str
         
+# Creating the Tank class that inherits from Character
+class Tank(Character):
+    def __init__(self, name):
+        super().__init__(name)
+        # Modify the base defense to be 20% higher
+        self.set_base_defense(int(self.get_base_defense() * 1.20))
+        
+# Creating the DPT class that inherits from Character    
+class DPT(Character):
+    def __init__(self, name):
+        super().__init__(name)
+        # Modify the base attack to provide a 20% increase
+        self.set_base_attack(int(self.get_base_attack() * 1.20))
+        
+# Creating the Preist class that inherits from Character         
+class Priest(Character):
+    def __init__(self, name) -> None:
+        super().__init__(name)
+        self.last_healing = datetime.datetime.now() - datetime.timedelta(minutes=2)
+
+    def take_damage(self, enemy) -> int:
+        Printer.info(enemy.name + " senses the holiness of " + self.name + " and chooses not to attack!")
+        return 0
+
+    def heal(self, target):
+        if datetime.datetime.now() - self.last_healing < datetime.timedelta(minutes = 2):
+            Printer.alert(self.name + " hasn't recovered from the last healing!")
+            return None
+        self.last_healing = datetime.datetime.now()
+        amt = random.randint(0, 25)
+        target.health += amt
+        return amt
+        
+
+@staticmethod
+def load_conditions() -> None:
+    with open('./item_attributes', 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            Item.CONDITIONS.append(row)
             
+class CharacterDeathException(Exception):
+    def __init__(self, st, character) -> None:
+        super().__init__(st)
+        self.character = character
+
+# Creating the Bard class that inherits from Character          
+class Bard(Character):
+    def __init__(self, name):
+        super().__init__(name)
+        
+        # Customize the Bard's attributes to double attack strength
+        self.set_luck(int(self.get_luck() * 2.00))
+        self.__unique_ability = "Inspiring Potion" 
+
+    def inspire_teammate(self, teammate):
+        # The Bard's unique ability is to inspire his team
+        teammate.set_base_attack(int(teammate.get_base_attack() * 1.10))
+        return f"{self.__name} plays an {self.__unique_ability} to inspire {teammate.get_name()}! {teammate.get_name()}'s attack doubles."
+
+# Creating the Monster class that inherits from Character
+class Monster(Character):
+    def __init__(self, name, original_character):
+        super().__init__(name)
+        
+        # Set the monster's health to half the original character's health
+        self.set_health(original_character.get_health() // 2)
+        
+        # Set the monster's base attack to 25% of the original character's base attack
+        self.set_base_attack(int(original_character.get_base_attack() * 0.25))
+        
+        # Generate a random amount of gold for the monster
+        self.__gold = random.randint(0, 10)
+        
+        # 10% chance of the monster having a random item in its inventory
+        if random.random() < 0.10:
+            self.__inventory = [random.choice(Item.ITEMS)]
+        else:
+            self.__inventory = []
+    
+    # Method for dropping loot        
+    def drop_loot(self, room):
+        # Transfer gold to the room
+        room.set_gold(room.get_gold() + self.__gold)
+        # Transfer items to the room
+        room.add_items(self.__inventory)  
+        
+    # Getter for gold
+    def get_gold(self):
+        return self.__gold
+
+     # Monster's string representation
+    def __str__(self) -> str:
+        monster_info = super().__str()
+        monster_info += f"\nGold: {self.__gold}"
+        if self.__inventory:
+            monster_info += "\nInventory:\n"
+            for item in self.__inventory:
+                monster_info += f"{item.get_description()}\n"
+        return monster_info  
+        
+        
+        
+        
+        
+        
+        
+        
