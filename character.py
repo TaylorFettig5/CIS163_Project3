@@ -12,14 +12,15 @@ character.py
 
 # Generates random numbers
 import random
+import datetime  
 
 # Creating the Character class
 class Character:
-    def __init__(self, name):
+    def __init__(self, name, max_weight):
         # Testing to see if name is blank
         if not name:
             raise ValueError("Name cannot be blank")
-        
+
         self.__name = name
         self.__health = random.randint(50, 100)
         self.__base_attack = random.randint(5, 20)
@@ -29,6 +30,7 @@ class Character:
         self.__armor = []
         self.__weapon = Weapon(("weapon", "Barehanded", 1, 0, 0))
         self.__weapon.set_condition("Normal")
+        self.max_weight = max_weight
     
     # Getter for name
     def get_name(self):
@@ -128,6 +130,21 @@ class Character:
         if self.health <= 0:
             raise CharacterDeathException(f"{self.__name} has died.")
         return damage 
+        
+    # Check if the character is already wearing an item of the same type   
+    def wear_item(self, item):
+        if self.equipped_item and self.equipped_item.__class__ == item.__class__:
+            self.add_inventory(self.equipped_item)
+        # Update the equipped item
+        self.equipped_item = item
+        
+    # Check the weight of the items being added   
+    def add_inventory(self, item):
+        total_weight = sum(item.weight for item in self.inventory) + item.weight
+        if total_weight <= self.max_weight:
+            self.inventory.append(item)
+        else:
+            raise CharacterOverweightException(f"{self.__name} is overweight and cannot carry {item.get_description()}")     
     
     # String representation of character    
     def __str__(self) -> str:
