@@ -28,9 +28,11 @@ class Item:
     
     # Static method to read the file and store in conditions list
     @staticmethod
-    def load_conditions():
-        with open('./item_attributes') as f:
-            Item.CONDITIONS = [line.strip().split() for line in f]
+    def load_conditions() -> None:
+        with open('./item_attributes', 'r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                Item.CONDITIONS.append(row)
     
     # Static method to read the file and store in items list   
     @staticmethod
