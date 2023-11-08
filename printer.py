@@ -3,7 +3,7 @@ from colorama import Back, Fore, Style
 class Printer:
     @staticmethod
     def info(message) -> None:
-        print( Back.BLACK + Fore.LIGHTWHITE_EX + message.__str__() )
+        print( Back.BLACK + Fore.YELLOW + message.__str__() )
 
     @staticmethod
     def alert(message) -> None:
@@ -11,7 +11,7 @@ class Printer:
 
     @staticmethod
     def dialogue(message) -> None:
-        print( Fore.BLACK + Back.LIGHTGREEN_EX + '"' + message.__str__() + '"')
+        print( Fore.BLACK + Back.WHITE + '"' + message.__str__() + '"')
 
     @staticmethod
     def text(message) -> None:
